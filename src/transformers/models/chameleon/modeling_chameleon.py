@@ -323,6 +323,7 @@ class ChameleonAttention(nn.Module):
         self.o_proj = nn.Linear(self.hidden_size, self.hidden_size, bias=config.attention_bias)
         self.q_norm = ChameleonLayerNorm((self.num_heads, self.head_dim))
         self.k_norm = ChameleonLayerNorm((self.num_key_value_heads, self.head_dim))
+        self.softmax = nn.Softmax(dim=-1)
         self._init_rope()
 
     # copied from transformers.models.llama.modeling_llama.LlamaAttention._init_rope with Llama->Chameleon
@@ -399,7 +400,8 @@ class ChameleonAttention(nn.Module):
             attn_weights = attn_weights + causal_mask
 
         # upcast attention to fp32
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1).to(query_states.dtype)
+        # attn_weights = nn.functional.softmax(attn_weights, dim=-1).to(query_states.dtype)
+        attn_weights = self.softmax(attn_weights).to(query_states.dtype)
         attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
         attn_output = torch.matmul(attn_weights, value_states)
 
