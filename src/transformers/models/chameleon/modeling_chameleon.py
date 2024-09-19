@@ -286,6 +286,15 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
 
 
+class AttentionMatrixHookModule(nn.Module):
+    """Computation of the attention matrix. *Note*: it has been added just for adding custom hooks."""
+    
+    def forward(
+            self,
+            attention_matrix: torch.Tensor,
+    ):
+        return attention_matrix
+
 class ChameleonAttention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
 
@@ -325,6 +334,8 @@ class ChameleonAttention(nn.Module):
         self.k_norm = ChameleonLayerNorm((self.num_key_value_heads, self.head_dim))
         self.softmax = nn.Softmax(dim=-1)
         self._init_rope()
+
+        self.attention_matrix_hook = AttentionMatrixHookModule()
 
     # copied from transformers.models.llama.modeling_llama.LlamaAttention._init_rope with Llama->Chameleon
     # TODO(joao): add me back asap :)
@@ -403,6 +414,7 @@ class ChameleonAttention(nn.Module):
         # attn_weights = nn.functional.softmax(attn_weights, dim=-1).to(query_states.dtype)
         attn_weights = self.softmax(attn_weights).to(query_states.dtype)
         attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
+        attn_weights = self.attention_matrix_hook(attn_weights)
         attn_output = torch.matmul(attn_weights, value_states)
 
         if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
@@ -417,6 +429,8 @@ class ChameleonAttention(nn.Module):
 
         if not output_attentions:
             attn_weights = None
+        else:
+            attn_weights = attn_weights.cpu().detach()
 
         return attn_output, attn_weights, past_key_value
 
