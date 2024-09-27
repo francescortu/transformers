@@ -46,6 +46,7 @@ from ...utils import (
 from .configuration_chameleon import ChameleonConfig, ChameleonVQVAEConfig
 
 
+
 if is_flash_attn_2_available():
     from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
 
@@ -429,8 +430,6 @@ class ChameleonAttention(nn.Module):
 
         if not output_attentions:
             attn_weights = None
-        else:
-            attn_weights = attn_weights.cpu().detach()
 
         return attn_output, attn_weights, past_key_value
 
