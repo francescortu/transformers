@@ -413,7 +413,7 @@ class ChameleonAttention(nn.Module):
 
         # upcast attention to fp32
         # attn_weights = nn.functional.softmax(attn_weights, dim=-1).to(query_states.dtype)
-        attn_weights = self.softmax(attn_weights).to(query_states.dtype)
+        attn_weights = self.softmax(attn_weights.to(torch.float32)).to(query_states.dtype)
         attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
         attn_weights = self.attention_matrix_hook(attn_weights)
         attn_output = torch.matmul(attn_weights, value_states)
