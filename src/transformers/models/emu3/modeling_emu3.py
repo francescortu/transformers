@@ -335,6 +335,14 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     hidden_states = hidden_states[:, :, None, :, :].expand(batch, num_key_value_heads, n_rep, slen, head_dim)
     return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
 
+class AttentionMatrixHookModule(nn.Module):
+    """Computation of the attention matrix. *Note*: it has been added just for adding custom hooks."""
+    
+    def forward(
+            self,
+            attention_matrix: torch.Tensor,
+    ):
+        return attention_matrix
 
 class Emu3Attention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
@@ -371,6 +379,8 @@ class Emu3Attention(nn.Module):
         self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
         self.o_proj = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
         self.rotary_emb = Emu3RotaryEmbedding(config=self.config)
+        self.attention_matrix_hook = AttentionMatrixHookModule()
+
 
     def forward(
         self,
@@ -434,6 +444,8 @@ class Emu3Attention(nn.Module):
         # upcast attention to fp32
         attn_weights = nn.functional.softmax(attn_weights, dim=-1).to(query_states.dtype)
         attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
+        attn_weights = self.attention_matrix_hook(attn_weights)
+
         attn_output = torch.matmul(attn_weights, value_states)
 
         if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
