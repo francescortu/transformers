@@ -376,6 +376,8 @@ class T5Attention(nn.Module):
             self.relative_attention_bias = nn.Embedding(self.relative_attention_num_buckets, self.n_heads)
         self.pruned_heads = set()
         self.gradient_checkpointing = False
+        self.attention_matrix_hook = AttentionMatrixHookModule()
+
 
     def prune_heads(self, heads):
         if len(heads) == 0:
@@ -550,6 +552,7 @@ class T5Attention(nn.Module):
 
         # (batch_size, n_heads, seq_length, key_length)
         attn_weights = nn.functional.softmax(scores.float(), dim=-1).type_as(scores)
+        attn_weights = self.attention_matrix_hook(attn_weights)
         attn_weights = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
 
         # Mask heads if we want to
@@ -568,6 +571,14 @@ class T5Attention(nn.Module):
             outputs = outputs + (attn_weights,)
         return outputs
 
+class AttentionMatrixHookModule(nn.Module):
+    """Computation of the attention matrix. *Note*: it has been added just for adding custom hooks."""
+    
+    def forward(
+            self,
+            attention_matrix: torch.Tensor,
+    ):
+        return attention_matrix
 
 class T5LayerSelfAttention(nn.Module):
     def __init__(self, config, has_relative_attention_bias=False, layer_idx: Optional[int] = None):
@@ -577,6 +588,7 @@ class T5LayerSelfAttention(nn.Module):
         )
         self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
+        
 
     def forward(
         self,
