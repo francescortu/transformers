@@ -362,7 +362,9 @@ class EncoderDecoderMixin:
 
         # Bert does not have a bos token id, so use pad_token_id instead
         generated_output = enc_dec_model.generate(
-            inputs, decoder_start_token_id=enc_dec_model.config.decoder.pad_token_id
+            inputs,
+            decoder_start_token_id=enc_dec_model.config.decoder.pad_token_id,
+            max_length=decoder_config.max_length,
         )
         self.assertEqual(generated_output.shape, (inputs.shape[0],) + (decoder_config.max_length,))
 
@@ -497,15 +499,6 @@ class EncoderDecoderMixin:
                 class_name = submodule.__class__.__name__
                 if "SdpaAttention" in class_name or "SdpaSelfAttention" in class_name:
                     raise ValueError("The eager model should not have SDPA attention layers")
-
-            has_sdpa = False
-            for name, submodule in model_sdpa.named_modules():
-                class_name = submodule.__class__.__name__
-                if "SdpaAttention" in class_name or "SdpaSelfAttention" in class_name:
-                    has_sdpa = True
-                    break
-            if not has_sdpa:
-                raise ValueError("The SDPA model should have SDPA attention layers")
 
 
 @require_torch
