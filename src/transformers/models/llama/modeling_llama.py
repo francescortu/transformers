@@ -331,11 +331,12 @@ class LlamaAttention(nn.Module):
             attn_weights = attn_weights + causal_mask
 
         attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        attn_weights = self.attention_matrix_hook(attn_weights)
         attn_weights = nn.functional.dropout(attn_weights, p=dropout, training=self.training)
         attn_output = torch.matmul(attn_weights, value_states)
         attn_output = attn_output.transpose(1, 2).contiguous()
 
-        return attn_output, attn_weights
+        # return attn_output, attn_weights
 
         attn_output = attn_output.reshape(*input_shape, -1).contiguous()
         attn_output = self.o_proj(attn_output)
