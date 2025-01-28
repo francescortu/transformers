@@ -369,7 +369,7 @@ class DbrxModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMixin
         pass
 
     @unittest.skip("Dbrx does not support `torch.compile` with `fullgraph=True`.")
-    def test_generate_compile_fullgraph(self):
+    def test_generate_compile_model_forward(self):
         pass
 
 
@@ -394,4 +394,4 @@ class DbrxModelIntegrationTest(unittest.TestCase):
                 ]
             ]
         )
-        self.assertTrue(torch.allclose(output[:, :3, :3], expected_slice, atol=1e-4))
+        torch.testing.assert_close(output[:, :3, :3], expected_slice, rtol=1e-4, atol=1e-4)

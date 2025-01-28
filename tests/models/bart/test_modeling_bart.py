@@ -887,7 +887,7 @@ class BartModelIntegrationTests(unittest.TestCase):
         expected_slice = torch.tensor(
             [[0.7144, 0.8143, -1.2813], [0.7144, 0.8143, -1.2813], [-0.0467, 2.5911, -2.1845]], device=torch_device
         )
-        self.assertTrue(torch.allclose(output[:, :3, :3], expected_slice, atol=1e-3))
+        torch.testing.assert_close(output[:, :3, :3], expected_slice, rtol=1e-3, atol=1e-3)
 
     @slow
     def test_base_mask_filling(self):
@@ -1531,9 +1531,4 @@ class BartStandaloneDecoderModelTest(ModelTesterMixin, GenerationTesterMixin, un
 
     @unittest.skip
     def test_save_load_fast_init_from_base(self):
-        pass
-
-    @unittest.skip(reason="Generate needs input ids")
-    def test_inputs_embeds_matches_input_ids_with_generate(self):
-        # generate only works with input ids for bartforcausalLM
         pass
