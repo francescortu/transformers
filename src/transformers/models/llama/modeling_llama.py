@@ -197,21 +197,12 @@ def eager_attention_forward(
         attn_weights = attn_weights + causal_mask
 
     attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query.dtype)
+    attn_weights = module.attention_matrix_hook(attn_weights)
     attn_weights = nn.functional.dropout(attn_weights, p=dropout, training=module.training)
     attn_output = torch.matmul(attn_weights, value_states)
     attn_output = attn_output.transpose(1, 2).contiguous()
 
     return attn_output, attn_weights
-
-
-class AttentionMatrixHookModule(nn.Module):
-    """Computation of the attention matrix. *Note*: it has been added just for adding custom hooks."""
-
-    def forward(
-        self,
-        attention_matrix: torch.Tensor,
-    ):
-        return attention_matrix
 
 
 class LlamaAttention(nn.Module):

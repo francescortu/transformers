@@ -50,7 +50,7 @@ class AttentionMatrixHookModule(nn.Module):
             attention_matrix: torch.Tensor,
     ):
         return attention_matrix
-    
+
 class MistralMLP(LlamaMLP):
     def __init__(self, config):
         super().__init__(config)
@@ -98,17 +98,17 @@ class MistralAttention(LlamaAttention):
         if self.config._attn_implementation != "eager":
             attention_interface = ALL_ATTENTION_FUNCTIONS[self.config._attn_implementation]
 
-        # attn_output, attn_weights = attention_interface(
-        #     self,
-        #     query_states,
-        #     key_states,
-        #     value_states,
-        #     attention_mask,
-        dropout=0.0 if not self.training else self.attention_dropout
-        #     scaling=self.scaling,
-        #     sliding_window=getattr(self.config, "sliding_window", None),  # main diff with Llama
-        #     **kwargs,
-        # )
+        attn_output, attn_weights = attention_interface(
+            self,
+            query_states,
+            key_states,
+            value_states,
+            attention_mask,
+            dropout=0.0 if not self.training else self.attention_dropout,
+            scaling=self.scaling,
+            sliding_window=getattr(self.config, "sliding_window", None),  # main diff with Llama
+            **kwargs,
+        )
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
