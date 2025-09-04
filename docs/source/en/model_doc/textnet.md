@@ -13,17 +13,22 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
+*This model was released on 2021-11-03 and added to Hugging Face Transformers on 2025-01-08.*
 
 # TextNet
 
+<div class="flex flex-wrap space-x-1">
+<img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-DE3412?style=flat&logo=pytorch&logoColor=white">
+</div>
+
 ## Overview
 
-The TextNet model was proposed in [FAST: Faster Arbitrarily-Shaped Text Detector with Minimalist Kernel Representation](https://arxiv.org/abs/2111.02394) by Zhe Chen, Jiahao Wang, Wenhai Wang, Guo Chen, Enze Xie, Ping Luo, Tong Lu. TextNet is a vision backbone useful for text detection tasks. It is the result of neural architecture search (NAS) on backbones with reward function as text detection task (to provide powerful features for text detection).
+The TextNet model was proposed in [FAST: Faster Arbitrarily-Shaped Text Detector with Minimalist Kernel Representation](https://huggingface.co/papers/2111.02394) by Zhe Chen, Jiahao Wang, Wenhai Wang, Guo Chen, Enze Xie, Ping Luo, Tong Lu. TextNet is a vision backbone useful for text detection tasks. It is the result of neural architecture search (NAS) on backbones with reward function as text detection task (to provide powerful features for text detection).
 
 <img src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/model_doc/fast_architecture.png"
 alt="drawing" width="600"/>
 
-<small> TextNet backbone as part of FAST. Taken from the <a href="https://arxiv.org/abs/2111.02394">original paper.</a> </small>
+<small> TextNet backbone as part of FAST. Taken from the <a href="https://huggingface.co/papers/2111.02394">original paper.</a> </small>
 
 This model was contributed by [Raghavan](https://huggingface.co/Raghavan), [jadechoghari](https://huggingface.co/jadechoghari) and [nielsr](https://huggingface.co/nielsr).
 
@@ -41,6 +46,11 @@ TextNet is the backbone for Fast, but can also be used as an efficient text/imag
 ## TextNetImageProcessor
 
 [[autodoc]] TextNetImageProcessor
+    - preprocess
+
+## TextNetImageProcessorFast
+
+[[autodoc]] TextNetImageProcessorFast
     - preprocess
 
 ## TextNetModel

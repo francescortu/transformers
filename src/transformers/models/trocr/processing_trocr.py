@@ -18,7 +18,7 @@ Processor class for TrOCR.
 
 import warnings
 from contextlib import contextmanager
-from typing import List, Union
+from typing import Union
 
 from ...image_processing_utils import BatchFeature
 from ...image_utils import ImageInput
@@ -72,7 +72,7 @@ class TrOCRProcessor(ProcessorMixin):
     def __call__(
         self,
         images: ImageInput = None,
-        text: Union[TextInput, PreTokenizedInput, List[TextInput], List[PreTokenizedInput]] = None,
+        text: Union[TextInput, PreTokenizedInput, list[TextInput], list[PreTokenizedInput]] = None,
         audio=None,
         videos=None,
         **kwargs: Unpack[TrOCRProcessorKwargs],
@@ -81,7 +81,7 @@ class TrOCRProcessor(ProcessorMixin):
         When used in normal mode, this method forwards all its arguments to AutoImageProcessor's
         [`~AutoImageProcessor.__call__`] and returns its output. If used in the context
         [`~TrOCRProcessor.as_target_processor`] this method forwards all its arguments to TrOCRTokenizer's
-        [`~TrOCRTokenizer.__call__`]. Please refer to the doctsring of the above two methods for more information.
+        [`~TrOCRTokenizer.__call__`]. Please refer to the docstring of the above two methods for more information.
         """
         # For backward compatibility
         if self._in_target_context_manager:
@@ -109,19 +109,10 @@ class TrOCRProcessor(ProcessorMixin):
             inputs["labels"] = encodings["input_ids"]
             return inputs
 
-    def batch_decode(self, *args, **kwargs):
-        """
-        This method forwards all its arguments to TrOCRTokenizer's [`~PreTrainedTokenizer.batch_decode`]. Please refer
-        to the docstring of this method for more information.
-        """
-        return self.tokenizer.batch_decode(*args, **kwargs)
-
-    def decode(self, *args, **kwargs):
-        """
-        This method forwards all its arguments to TrOCRTokenizer's [`~PreTrainedTokenizer.decode`]. Please refer to the
-        docstring of this method for more information.
-        """
-        return self.tokenizer.decode(*args, **kwargs)
+    @property
+    def model_input_names(self):
+        image_processor_input_names = self.image_processor.model_input_names
+        return image_processor_input_names + ["labels"]
 
     @contextmanager
     def as_target_processor(self):

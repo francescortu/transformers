@@ -12,23 +12,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import warnings
 
 from transformers import HfArgumentParser
+from transformers.commands.add_fast_image_processor import AddFastImageProcessorCommand
+from transformers.commands.add_new_model_like import AddNewModelLikeCommand
+from transformers.commands.chat import ChatCommand
+from transformers.commands.convert import ConvertCommand
+from transformers.commands.download import DownloadCommand
+from transformers.commands.env import EnvironmentCommand
+from transformers.commands.run import RunCommand
+from transformers.commands.serving import ServeCommand
 
-from .add_new_model_like import AddNewModelLikeCommand
-from .chat import ChatCommand
-from .convert import ConvertCommand
-from .download import DownloadCommand
-from .env import EnvironmentCommand
-from .lfs import LfsCommands
-from .run import RunCommand
-from .serving import ServeCommand
-from .user import UserCommands
+
+def main_cli():
+    warnings.warn(
+        "`transformers-cli` is deprecated in favour of `transformers` directly and will be removed in v5.",
+        DeprecationWarning,
+    )
+    main()
 
 
 def main():
-    parser = HfArgumentParser(prog="Transformers CLI tool", usage="transformers-cli <command> [<args>]")
-    commands_parser = parser.add_subparsers(help="transformers-cli command helpers")
+    parser = HfArgumentParser(prog="Transformers CLI tool", usage="transformers <command> [<args>]")
+    commands_parser = parser.add_subparsers(help="transformers command helpers")
 
     # Register commands
     ChatCommand.register_subcommand(commands_parser)
@@ -37,9 +44,8 @@ def main():
     EnvironmentCommand.register_subcommand(commands_parser)
     RunCommand.register_subcommand(commands_parser)
     ServeCommand.register_subcommand(commands_parser)
-    UserCommands.register_subcommand(commands_parser)
     AddNewModelLikeCommand.register_subcommand(commands_parser)
-    LfsCommands.register_subcommand(commands_parser)
+    AddFastImageProcessorCommand.register_subcommand(commands_parser)
 
     # Let's go
     args = parser.parse_args()
